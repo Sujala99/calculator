@@ -1,3 +1,4 @@
+import 'package:calculator/controller/calculator.dart';
 import 'package:flutter/material.dart';
 
 class Calculator extends StatefulWidget {
@@ -5,11 +6,11 @@ class Calculator extends StatefulWidget {
 
   @override
   State<Calculator> createState() => _CalculatorState();
-  // final _textController = TextEditingController();
 }
 
 class _CalculatorState extends State<Calculator> {
-  List<String> lstSymbols = [
+  final CalculatorController _calculatorController = CalculatorController();
+  final List<String> lstSymbols = [
     "C",
     "*",
     "/",
@@ -23,16 +24,16 @@ class _CalculatorState extends State<Calculator> {
     "6",
     "-",
     "7",
+    "8",
     "9",
-    "*",
     "%",
     "0",
     ".",
     "="
   ];
-  final _key = GlobalKey<FormState>();
-  int first = 0;
-  int second = 0;
+
+  String operationDetails = ""; // To display operand details
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,60 +42,84 @@ class _CalculatorState extends State<Calculator> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Form(
-          key: _key,
-          child: Column(
-            children: [
-              TextFormField(
-                textDirection: TextDirection.rtl,
-                // controller: _textController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Text Widget to display first operand, operator, and second operand
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                operationDetails.isEmpty ? " " : operationDetails,
+                textAlign: TextAlign.left,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(
-                height: 8,
+            ),
+            const SizedBox(height: 8),
+
+            // TextField for calculation result
+            TextField(
+              controller: _calculatorController.textController,
+              textAlign: TextAlign.right,
+              readOnly: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
               ),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
-                  ),
-                  itemCount: lstSymbols.length,
-                  itemBuilder: (context, index) {
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        lstSymbols[index],
-                        style: const TextStyle(
-                          fontSize: 24,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    );
-                  },
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // GridView for calculator buttons
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 8.0,
+                  mainAxisSpacing: 8.0,
                 ),
+                itemCount: lstSymbols.length,
+                itemBuilder: (context, index) {
+                  return ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _calculatorController
+                            .onButtonPressed(lstSymbols[index]);
+                        if (lstSymbols[index] == "=") {
+                          operationDetails =
+                              _calculatorController.getOperationDetails();
+                        }
+                      });
+                    },
+                    child: Text(
+                      lstSymbols[index],
+                      style: const TextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-// use only one controller
-//  substring for deleting
-//3 variable first secound and operator
